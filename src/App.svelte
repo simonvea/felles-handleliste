@@ -1,18 +1,11 @@
 <script lang="ts">
   import { db } from "./db";
   import { onMount } from "svelte";
+  import { updateTodoFirestore, fetchTodos } from "./firestore";
 
-  const name = "Handleliste";
   const collection = db.collection("todos");
 
-  let todos = [
-    {
-      id: "1",
-      task: "Hello",
-      done: false
-    },
-    { id: "2", task: "Whats up", done: false }
-  ];
+  let todos = [];
 
   let newTask = "";
 
@@ -23,73 +16,50 @@
       task: newTask,
       done: false
     };
-
     const ref = await collection.add(todo);
 
-    const newTodo = {
+    todos = todos.concat({
       ...todo,
       id: ref.id
-    };
-    todos = [...todos, newTodo];
+    });
+
     newTask = "";
   }
 
-  function deleteTodo(id: string) {
+  async function deleteTodo(id: string) {
     todos = todos.filter(todo => todo.id !== id);
+    await collection.doc(id).delete();
   }
 
   const updateTodo = async (newTodo: any) => {
     const index = todos.findIndex(todo => todo.id === newTodo.id);
     if (index !== -1) {
-      todos.splice(index, 1, newTodo);
+      todos[index] = newTodo;
     }
-  };
-
-  async function updateTodoAsync(todo) {}
-
-  const updateTodoFirestore = async (todo: any) => {
-    const updatedTodo = {
-      ...todo
-    };
-
-    delete updatedTodo.id;
-
-    await collection.doc(todo.id).update(updatedTodo);
-    console.info("Updated todo: ", todo.task);
   };
 
   function toggleDone(id: string) {
     const index = todos.findIndex(todo => todo.id === id);
     todos[index].done = !todos[index].done;
+    console.log("hei");
     updateTodoFirestore(todos[index]);
   }
 
-  async function fetchTodos() {
-    const querysnapshot = await collection.orderBy("done").get();
-    const downloadedTodos = [];
-    querysnapshot.forEach(doc => {
-      const data = doc.data();
-
-      const todo = {
-        id: doc.id
-      } as {
-        id: string;
-        task: string;
-        done: boolean;
-      };
-
-      if ("task" in data) {
-        todo.task = data.task;
-      }
-      if ("done" in data) {
-        todo.done = data.done;
-      }
-
-      downloadedTodos.push(todo);
-    });
-    todos = downloadedTodos;
+  let timer = 0;
+  function updateTodoAsync(id: string, task: string) {
+    const index = todos.findIndex(todo => todo.id === id);
+    if (index !== -1) {
+      todos[index] = { ...todos[index], task };
+    }
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      updateTodoFirestore({ ...todos[index], task });
+    }, 1000);
   }
-  onMount(fetchTodos);
+
+  $: remaining = todos.filter(t => !t.done).length;
+
+  onMount(async () => (todos = await fetchTodos()));
 
   // TODO: Create store and subscribe to changes? Update firestore in subscription.
   // Alternatively, update periodically (with only changes, if there are any)
@@ -113,25 +83,40 @@
     align-items: center;
     margin-left: 0;
     padding-left: 0;
+    list-style: none;
   }
 
   .add-todo {
     display: grid;
     place-items: center;
   }
+
+  .handleliste__checkbox {
+    /* Double-sized Checkboxes */
+    -ms-transform: scale(2); /* IE */
+    -moz-transform: scale(2); /* FF */
+    -webkit-transform: scale(2); /* Safari and Chrome */
+    -o-transform: scale(2); /* Opera */
+    transform: scale(2);
+    padding: 10px;
+    margin: 10px;
+  }
 </style>
 
 <main>
   <section class="handleliste">
-    <h1 class="title">{name}</h1>
+    <h1 class="title">Handleliste</h1>
     <ul class="handleliste__liste">
       {#each todos as todo (todo.id)}
         <li>
           <input
+            class="handleliste__checkbox"
             type="checkbox"
             checked={todo.done}
             on:click={() => toggleDone(todo.id)} />
-          <input bind:value={todo.task} />
+          <input
+            value={todo.task}
+            on:input={({ target }) => updateTodoAsync(todo.id, target.value)} />
           <button type="button" on:click={() => deleteTodo(todo.id)}>
             Slett
           </button>
@@ -139,6 +124,9 @@
         </li>
       {/each}
     </ul>
+  </section>
+  <section>
+    <p>{remaining} gjenstår.</p>
   </section>
   <section class="add-todo">
     <form on:submit={addTodo}>
