@@ -1,46 +1,35 @@
 <script lang="ts">
-  import { db } from "./db";
-  import { onMount } from "svelte";
-  import { updateTodoFirestore, fetchTodos } from "./firestore";
-  import TodoList from "./components/TodoList.svelte";
+  import { onMount } from 'svelte';
+  import API from './firestore';
+  import TodoList from './components/TodoList.svelte';
+  import type { Todo } from './types';
 
-  const collection = db.collection("todos");
+  let todos: Todo[] = [];
 
-  let todos = [];
-
-  let newTask = "";
+  let newTask = '';
 
   async function addTodo(e: any) {
     e.preventDefault();
 
     const todo = {
       task: newTask,
-      done: false
+      done: false,
     };
-    const ref = await collection.add(todo);
+    const ref = await API.add(todo);
 
     todos = todos.concat({
       ...todo,
-      id: ref.id
+      id: ref.id,
     });
 
-    newTask = "";
+    newTask = '';
   }
 
-  const updateTodo = async (newTodo: any) => {
-    const index = todos.findIndex(todo => todo.id === newTodo.id);
-    if (index !== -1) {
-      todos[index] = newTodo;
-    }
-  };
+  $: remaining = todos.filter((t) => !t.done).length;
 
-  $: remaining = todos.filter(t => !t.done).length;
-
-  onMount(async () => (todos = await fetchTodos()));
-
-  // TODO: Create store and subscribe to changes? Update firestore in subscription.
-  // Alternatively, update periodically (with only changes, if there are any)
-  // A separate "changed" list, conataining changed todos?
+  onMount(async () => {
+    todos = await API.fetchTodos();
+  });
 </script>
 
 <style>
@@ -57,15 +46,19 @@
     display: grid;
     place-items: center;
   }
+
+  .handleliste__remaining {
+    text-align: center;
+  }
 </style>
 
 <main>
   <section class="handleliste">
     <h1 class="title">Handleliste</h1>
-    <TodoList {todos} />
-  </section>
-  <section>
-    <p>{remaining} gjenstår.</p>
+    <section class="handleliste__remaining">
+      <p>{remaining} gjenstår.</p>
+    </section>
+    <TodoList bind:todos />
   </section>
   <section class="add-todo">
     <form on:submit={addTodo}>

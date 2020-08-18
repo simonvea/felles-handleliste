@@ -1,33 +1,34 @@
 <script lang="ts">
-  import type { Todo } from "../types";
+  import type { Todo } from '../types';
+  import API from '../firestore';
   export let todos: Todo[];
 
-   import { db } from "../db";
-  import { updateTodoFirestore } from "../firestore";
-
-  const collection = db.collection("todos");
-
   let timer = 0;
+
+  // TODO: Changing todos here does not change todos in parent. So when adding new
+
   async function deleteTodo(id: string) {
-    todos = todos.filter(todo => todo.id !== id);
-    await collection.doc(id).delete();
+    todos = todos.filter((todo) => todo.id !== id);
+    await API.delete(id);
   }
 
   function updateTodoAsync(id: string, task: string) {
-    const index = todos.findIndex(todo => todo.id === id);
+    const index = todos.findIndex((todo) => todo.id === id);
     if (index !== -1) {
       todos[index] = { ...todos[index], task };
     }
     clearTimeout(timer);
     timer = setTimeout(() => {
-      updateTodoFirestore({ ...todos[index], task });
+      // updateTodoFirestore({ ...todos[index], task });
+      API.update({ ...todos[index], task });
     }, 1000);
   }
 
   function toggleDone(id: string) {
-    const index = todos.findIndex(todo => todo.id === id);
+    const index = todos.findIndex((todo) => todo.id === id);
     todos[index].done = !todos[index].done;
-    updateTodoFirestore(todos[index]);
+    // updateTodoFirestore(todos[index]);
+    API.update(todos[index]);
   }
 </script>
 
@@ -52,7 +53,6 @@
     padding: 10px;
     margin: 10px;
   }
-
 </style>
 
 <ul class="handleliste__liste">
@@ -69,7 +69,7 @@
       <button type="button" on:click={() => deleteTodo(todo.id)}>Slett</button>
     </li>
   {:else}
-        <p>Henter handleliste...</p>
+    <p>Henter handleliste...</p>
   {/each}
 
 </ul>
