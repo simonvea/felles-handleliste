@@ -1,5 +1,7 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
+import 'firebase/auth';
+import { resetUser, updateUser } from './userstore';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyB_FyKIbpRVTyjw4JrcPb8bbvVmTB7SBvI',
@@ -29,3 +31,25 @@ db.enablePersistence().catch(function (err) {
     // ...
   }
 });
+
+export const init = () => {
+  firebase.auth().onAuthStateChanged((user) => {
+    user ? updateUser(user) : resetUser();
+  });
+};
+
+export const login = async (email: string, password: string) => {
+  try {
+    await firebase.auth().signInWithEmailAndPassword(email, password);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+export const logout = async () => {
+  try {
+    await firebase.auth().signOut();
+  } catch (err) {
+    console.error(err);
+  }
+};
