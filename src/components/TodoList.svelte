@@ -1,10 +1,9 @@
 <script lang="ts">
   import type { Todo } from '../types';
-  import API from '../firestore';
+  import API from '../api';
   export let todos: Todo[];
 
   let timer = 0;
-
   // TODO: Changing todos here does not change todos in parent. So when adding new
 
   async function deleteTodo(id: string) {
@@ -19,7 +18,6 @@
     }
     clearTimeout(timer);
     timer = setTimeout(() => {
-      // updateTodoFirestore({ ...todos[index], task });
       API.update({ ...todos[index], task });
     }, 1000);
   }
@@ -27,7 +25,6 @@
   function toggleDone(id: string) {
     const index = todos.findIndex((todo) => todo.id === id);
     todos[index].done = !todos[index].done;
-    // updateTodoFirestore(todos[index]);
     API.update(todos[index]);
   }
 </script>
@@ -63,13 +60,11 @@
         type="checkbox"
         checked={todo.done}
         on:click={() => toggleDone(todo.id)} />
-      <input
+      <textarea
         value={todo.task}
         on:input={({ target }) => updateTodoAsync(todo.id, target.value)} />
       <button type="button" on:click={() => deleteTodo(todo.id)}>Slett</button>
     </li>
-  {:else}
-    <p>Henter handleliste...</p>
   {/each}
 
 </ul>
