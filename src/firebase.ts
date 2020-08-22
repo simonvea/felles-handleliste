@@ -1,7 +1,6 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
-import { resetUser, updateUser } from './userstore';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyB_FyKIbpRVTyjw4JrcPb8bbvVmTB7SBvI',
