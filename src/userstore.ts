@@ -1,7 +1,7 @@
 import { writable, derived } from 'svelte/store';
 import type { User } from 'firebase';
 
-const user = writable(undefined);
+const user = writable<User>(undefined);
 
 export const updateUser = (newUser: User) => user.set(newUser);
 

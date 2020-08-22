@@ -1,24 +1,40 @@
 import { app } from './firebase';
-import { resetUser, updateUser } from './userstore';
+import type { User } from 'firebase';
 
-export const init = () => {
-  app.auth().onAuthStateChanged((user) => {
-    user ? updateUser(user) : resetUser();
-  });
-};
+class Auth {
+  private auth: firebase.auth.Auth;
 
-export const login = async (email: string, password: string) => {
-  try {
-    await app.auth().signInWithEmailAndPassword(email, password);
-  } catch (err) {
-    console.error(err);
+  constructor(app: firebase.app.App) {
+    this.auth = app.auth();
   }
-};
 
-export const logout = async () => {
-  try {
-    await app.auth().signOut();
-  } catch (err) {
-    console.error(err);
+  async login(email: string, password: string) {
+    try {
+      await this.auth.signInWithEmailAndPassword(email, password);
+    } catch (err) {
+      console.error(err);
+    }
   }
-};
+
+  async logout() {
+    try {
+      await this.auth.signOut();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  get currentUser() {
+    return this.auth.currentUser;
+  }
+
+  get isLoggedIn() {
+    return !!this.auth.currentUser;
+  }
+
+  addListener(cb: (user: User) => void) {
+    this.auth.onAuthStateChanged(cb);
+  }
+}
+
+export default new Auth(app);

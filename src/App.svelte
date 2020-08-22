@@ -1,109 +1,78 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import type { User } from 'firebase';
   import API from './api';
-  import TodoList from './components/TodoList.svelte';
-  import type { Todo } from './types';
-  import user, { isLoggedin } from './userstore';
-  import { init, login as loginAuth, logout } from './auth';
+  import Auth from './auth';
   import LoginForm from './components/LoginForm.svelte';
+  import { todos } from './store/Todos';
+  import Todos from './views/Todos.svelte';
 
   let unsubscribe;
-  let error = '';
+  let currentUser: User;
 
-  isLoggedin.subscribe(async (value) => {
-    if (value) {
+  todos.set([
+    { id: '2', task: 'tets', done: false },
+    { id: '5', task: 'Denne er ferdig', done: true },
+  ]);
+
+  Auth.addListener((user) => {
+    currentUser = user;
+    if (user) {
       unsubscribe = API.addListener((snap) => {
-        todos = API.getTodosFromSnapshot(snap);
+        todos.set(API.getTodosFromSnapshot(snap));
       });
     } else if (unsubscribe) {
       unsubscribe();
     }
   });
 
-  let todos: Todo[] = [];
-
-  let newTask = '';
-
-  async function addTodo(e: any) {
-    e.preventDefault();
-
-    const todo = {
-      task: newTask,
-      done: false,
-    };
-    const ref = await API.add(todo);
-
-    if (ref) {
-      todos = todos.concat({
-        ...todo,
-        id: ref.id,
-      });
-    }
-
-    newTask = '';
+  async function logout() {
+    await Auth.logout();
   }
-
-  $: remaining = todos.filter((t) => !t.done).length;
-
-  onMount(async () => {
-    init();
-    if ($isLoggedin) {
-      try {
-        todos = await API.fetchTodos();
-      } catch (err) {
-        console.error(err);
-        error = `Klarte ikke hente todos. Status ${err.status}: ${err.message}.`;
-      }
-    }
-  });
 </script>
 
 <style>
-  .title {
-    font-size: 30px;
-    text-align: center;
+  .header {
+    width: calc(100vw - 20px);
+    margin: 10px;
+    height: calc(20vh - 20px);
   }
 
-  .handleliste {
+  .header__toolbar {
     position: relative;
+    height: 40px;
   }
 
-  .add-todo {
-    display: grid;
-    place-items: center;
+  .logout-btn {
+    position: absolute;
+    right: 20px;
   }
 
-  .handleliste__remaining {
-    text-align: center;
+  .main-container {
+    width: calc(100vw - 40px);
+    padding: 20px;
+    height: calc(80vh - 40px);
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
   }
 </style>
 
-<main>
-  {#if !$isLoggedin}
+<header class="header">
+  {#if currentUser}
+    <section class="header__title">
+      <h1>Simon og Linn Jeanette sin handleliste</h1>
+    </section>
+    <section class="header__toolbar">
+      <button class="logout-btn" on:click={logout}>Logg ut</button>
+    </section>
+  {/if}
+</header>
+<main class="main-container">
+  {#if !currentUser}
     <LoginForm />
   {/if}
-  {#if $isLoggedin}
-    <section>
-      <button on:click={logout}>Logg ut</button>
-    </section>
-    <section class="handleliste">
-      <h1 class="title">Handleliste</h1>
-      <section class="handleliste__remaining">
-        <p>{remaining} gjenstår.</p>
-      </section>
-      {#if todos}
-        <TodoList bind:todos />
-      {:else if error}
-        <p>{error}</p>
-      {:else}
-        <p>Henter todos...</p>
-      {/if}
-    </section>
-    <section class="add-todo">
-      <form on:submit={addTodo}>
-        <input type="text" bind:value={newTask} maxlength="14" />
-        <button type="submit">Legg til</button>
-      </form>
-    </section>
+  {#if currentUser}
+    <Todos />
   {/if}
 </main>
