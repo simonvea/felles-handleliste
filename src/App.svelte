@@ -37,7 +37,9 @@
       <h1 class="text-xl">Simon og Linn Jeanette sin handleliste</h1>
     </section>
     <section class="relative h-12">
-      <Button class="absolute right-0 mx-8" onClick={logout}>Logg ut</Button>
+      <Button class="absolute right-0 mx-8" color="warning" onClick={logout}>
+        Logg ut
+      </Button>
     </section>
   {/if}
 </header>
