@@ -10,8 +10,6 @@
 
     if (!task) throw new Error('No Task!');
 
-    console.log('hei!');
-
     const todo: Omit<Todo, 'id'> = {
       task,
       done: false,
