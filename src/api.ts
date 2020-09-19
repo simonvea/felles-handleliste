@@ -87,4 +87,4 @@ class TodoAPI {
 
 const collection = db.collection('todos');
 
-export default new TodoAPI(collection);
+export const API = new TodoAPI(collection);

@@ -1,9 +1,10 @@
 <script lang="ts">
   import type { User } from 'firebase';
-  import API from './api';
+  import { API } from './api';
   import Auth from './auth';
-  import LoginForm from './components/LoginForm.svelte';
+  import Button from './components/atoms/Button.svelte';
   import { todos } from './store/Todos';
+  import Login from './views/Login.svelte';
   import Todos from './views/Todos.svelte';
 
   let unsubscribe;
@@ -30,47 +31,19 @@
   }
 </script>
 
-<style>
-  .header {
-    width: calc(100vw - 20px);
-    margin: 10px;
-    height: calc(20vh - 20px);
-  }
-
-  .header__toolbar {
-    position: relative;
-    height: 40px;
-  }
-
-  .logout-btn {
-    position: absolute;
-    right: 20px;
-  }
-
-  .main-container {
-    width: calc(100vw - 40px);
-    padding: 20px;
-    height: calc(80vh - 40px);
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: center;
-  }
-</style>
-
-<header class="header">
+<header class="m-3">
   {#if currentUser}
-    <section class="header__title">
-      <h1>Simon og Linn Jeanette sin handleliste</h1>
+    <section>
+      <h1 class="text-xl">Simon og Linn Jeanette sin handleliste</h1>
     </section>
-    <section class="header__toolbar">
-      <button class="logout-btn" on:click={logout}>Logg ut</button>
+    <section class="relative h-12">
+      <Button class="absolute right-0 mx-8" onClick={logout}>Logg ut</Button>
     </section>
   {/if}
 </header>
-<main class="main-container">
+<main class="max-w-full p-5 flex flex-col justify-center items-center">
   {#if !currentUser}
-    <LoginForm />
+    <Login />
   {/if}
   {#if currentUser}
     <Todos />
