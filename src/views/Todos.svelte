@@ -11,11 +11,16 @@
     <p>{$remainingTodos.length} gjenstår.</p>
   </section>
   {#if todos}
-    <TodoList />
+    <section class="mb-24">
+      <TodoList />
+    </section>
   {:else if error}
     <p>{error}</p>
   {:else}
     <p>Henter todos...</p>
   {/if}
-  <AddTodo />
+  <section
+    class="flex justify-center items-center w-full fixed bottom-0 my-2 left-0">
+    <AddTodo />
+  </section>
 </section>

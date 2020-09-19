@@ -1,10 +1,13 @@
 <script lang="typescript">
   export let value: string;
-  export let onInput: ({ target: HTMLTextAreaElement }) => void;
+  export let onInput: ({ target: HTMLTextAreaElement }) => void = ({
+    target,
+  }) => (value = target.value);
+  export let border: boolean = false;
 
-  function handleInput({ target }) {
-    setElementHeightToScrollHeight(target);
-    onInput(target);
+  function handleInput(e) {
+    setElementHeightToScrollHeight(e.target);
+    onInput(e);
   }
 
   function setElementHeightToScrollHeight(element: HTMLTextAreaElement) {
@@ -14,6 +17,6 @@
 </script>
 
 <textarea
-  class="flex flex-grow border-none resize-none overflow-hidden p-3 text-lg"
+  class="flex flex-grow resize-none overflow-hidden p-3 text-lg {border ? 'border border-gray-300 m-2' : 'border-none'}"
   {value}
   on:input={handleInput} />

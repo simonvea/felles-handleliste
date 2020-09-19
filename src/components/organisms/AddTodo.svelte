@@ -3,10 +3,14 @@
   import type { Todo } from '../../types';
   import { API } from '../../api';
   import Button from '../atoms/Button.svelte';
+  import TodoInput from '../atoms/TodoInput.svelte';
 
   async function onSubmit(e: any) {
     e.preventDefault();
-    console.log('Hei');
+
+    if (!task) throw new Error('No Task!');
+
+    console.log('hei!');
 
     const todo: Omit<Todo, 'id'> = {
       task,
@@ -14,12 +18,13 @@
     };
     const ref = await API.add(todo);
 
-    if (ref) {
-      addTodo({ id: ref.id, ...todo });
-    }
+    // Since the store listens to API changes, this will duplicate the addition.
+    // if (ref) {
+    //   addTodo({ id: ref.id, ...todo });
+    // }
 
     task = '';
-    (e.target.querySelector('input') as HTMLInputElement).focus();
+    (e.target.querySelector('textarea') as HTMLInputElement).focus();
   }
 
   let task = '';
@@ -40,25 +45,9 @@
   const toggleField = () => (showField = !showField);
 </script>
 
-<section>
-  {#if !showField}
-    <button
-      class="w-16 h-16 rounded-full bg-blue-400 shadow border-none fixed
-      bottom-0 right-0 m-4"
-      on:click={onAddTodo}>
-      +
-    </button>
-  {:else}
-    <form
-      on:submit={onSubmit}
-      class="flex justify-center items-center fixed bottom-0 my-2 left-0
-      max-w-screen-xl w-full">
-      <input
-        id="add-todo__field"
-        type="text"
-        bind:value={task}
-        class="text-2xl m-4" />
-      <Button type="submit" disabled={!task}>Legg til</Button>
-    </form>
-  {/if}
-</section>
+<form
+  on:submit={onSubmit}
+  class="flex justify-center items-center rounded shadow bg-teal-100">
+  <TodoInput bind:value={task} border={true} />
+  <Button type="submit">Legg til</Button>
+</form>
