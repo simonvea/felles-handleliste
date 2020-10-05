@@ -16,31 +16,11 @@
     };
     const ref = await API.add(todo);
 
-    // Since the store listens to API changes, this will duplicate the addition.
-    // if (ref) {
-    //   addTodo({ id: ref.id, ...todo });
-    // }
-
     task = '';
     (e.target.querySelector('textarea') as HTMLInputElement).focus();
   }
 
   let task = '';
-
-  let showField = false;
-
-  const onAddTodo = () => {
-    toggleField();
-    setTimeout(
-      () =>
-        (document.querySelector(
-          '#add-todo__field'
-        ) as HTMLInputElement).focus(),
-      0
-    );
-  };
-
-  const toggleField = () => (showField = !showField);
 </script>
 
 <form
