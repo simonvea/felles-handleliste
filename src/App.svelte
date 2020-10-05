@@ -3,6 +3,7 @@
   import { API } from './api';
   import Auth from './auth';
   import Button from './components/atoms/Button.svelte';
+  import SecondaryButton from './components/atoms/SecondaryButton.svelte';
   import { todos } from './store/Todos';
   import Login from './views/Login.svelte';
   import Todos from './views/Todos.svelte';
@@ -29,6 +30,14 @@
   async function logout() {
     await Auth.logout();
   }
+
+  function deleteFinishedTodos() {
+    $todos.forEach((todo) => {
+      if (todo.done) {
+        API.delete(todo.id);
+      }
+    });
+  }
 </script>
 
 <header class="m-3">
@@ -37,6 +46,9 @@
       <h1 class="text-xl">Simon og Linn Jeanette sin handleliste</h1>
     </section>
     <section class="relative h-12">
+      <SecondaryButton onClick={deleteFinishedTodos}>
+        Fjern fullførte
+      </SecondaryButton>
       <Button class="absolute right-0 mx-8" color="warning" onClick={logout}>
         Logg ut
       </Button>
