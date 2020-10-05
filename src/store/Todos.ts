@@ -20,3 +20,6 @@ export const setTodos = (newTodos: Todo[]) => todos.set(newTodos);
 export const remainingTodos = derived(todos, ($todos) =>
   $todos.filter((todo) => !todo.done)
 );
+
+export const removeFinishedTodos = () =>
+  todos.update((todos) => todos.filter((todo) => !todo.done));
