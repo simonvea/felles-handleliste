@@ -2,22 +2,18 @@
   import TodoList from '../components/ui/TodoList.svelte';
   import AddTodo from '../components/organisms/AddTodo.svelte';
   import { todos, remainingTodos } from '../store/Todos';
-
-  let error = '';
 </script>
 
 <section class="relative max-w-md">
   <section class="text-center">
     <p>{$remainingTodos.length} gjenstår.</p>
   </section>
-  {#if todos}
+  {#if $todos.length > 0}
     <section class="mb-24">
       <TodoList />
     </section>
-  {:else if error}
-    <p>{error}</p>
   {:else}
-    <p>Henter todos...</p>
+    <p>Legg til noe å kjøpe! =)</p>
   {/if}
   <section
     class="flex justify-center items-center w-full fixed bottom-0 my-2 left-0">
