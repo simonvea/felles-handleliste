@@ -10,7 +10,8 @@
     "dev": "run-p autobuild watch:tailwind",
     "start": "sirv public --single",
     "start:dev": "sirv public --single --dev",
-    "autobuild": "rollup -c -w"
+    "autobuild": "rollup -c -w",
+    "deploy": "firebase deploy --only hosting"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^14.0.0",
