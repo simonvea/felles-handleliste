@@ -17,16 +17,19 @@
 
   function submitOnEnterKey(e: KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       (e.target as any).form?.dispatchEvent(
         new Event('submit', { cancelable: true })
       );
-      e.preventDefault();
     }
   }
 </script>
 
 <textarea
-  class="flex flex-grow resize-none overflow-hidden p-3 text-lg {border ? 'border border-gray-300 m-2' : 'border-none'}"
+  class="flex flex-grow resize-none overflow-hidden p-3 text-lg {border
+    ? 'border border-gray-300 m-2'
+    : 'border-none'}"
   {value}
   on:input={handleInput}
-  on:keydown={submitOnEnterKey} />
+  on:keydown={submitOnEnterKey}
+/>

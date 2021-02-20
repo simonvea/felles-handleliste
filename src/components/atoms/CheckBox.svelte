@@ -4,7 +4,8 @@
 </script>
 
 <input
-  class="m-4 p-4 transform scale-200"
+  class="m-4 p-4 transform scale-150"
   type="checkbox"
   {checked}
-  on:click={onClick} />
+  on:click={onClick}
+/>

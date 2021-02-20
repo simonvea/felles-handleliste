@@ -5,7 +5,7 @@
 </script>
 
 <section class="relative max-w-md">
-  <section class="text-center">
+  <section class="text-center m-4">
     <p>{$remainingTodos.length} gjenstår.</p>
   </section>
   {#if $todos.length > 0}
@@ -16,7 +16,8 @@
     <p>Legg til noe å kjøpe! =)</p>
   {/if}
   <section
-    class="flex justify-center items-center w-full fixed bottom-0 my-2 left-0">
+    class="flex justify-center items-center w-full fixed bottom-0 my-2 left-0"
+  >
     <AddTodo />
   </section>
 </section>

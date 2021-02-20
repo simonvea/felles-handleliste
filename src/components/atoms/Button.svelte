@@ -7,7 +7,7 @@
   const SUCCESS_COLOR = 'bg-green-500';
   const WARNING_COLOR = 'bg-red-500';
 
-  let cssColor;
+  let cssColor = '';
 
   switch (color) {
     case 'success':
