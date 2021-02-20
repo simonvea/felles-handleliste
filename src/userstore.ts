@@ -1,9 +1,9 @@
 import { writable, derived } from 'svelte/store';
-import type { User } from 'firebase';
+import type firebase from 'firebase/app';
 
-const user = writable<User>(undefined);
+const user = writable<firebase.User>(undefined);
 
-export const updateUser = (newUser: User) => user.set(newUser);
+export const updateUser = (newUser: firebase.User) => user.set(newUser);
 
 export const isLoggedin = derived(user, ($user) => !!$user);
 

@@ -1,5 +1,6 @@
 import { app } from './firebase';
 import type { Todo } from './types';
+import type firebase from 'firebase/app';
 
 const db = app.firestore();
 db.enablePersistence().catch(function (err) {
@@ -16,13 +17,19 @@ db.enablePersistence().catch(function (err) {
 
 class TodoAPI {
   constructor(
-    private collection: firebase.firestore.CollectionReference<
-      firebase.firestore.DocumentData
-    >
+    private collection: firebase.firestore.CollectionReference<firebase.firestore.DocumentData>
   ) {}
 
   addListener(cb: (snap: firebase.firestore.QuerySnapshot) => void) {
-    return this.collection.onSnapshot(cb);
+    const unsubscribe = this.collection.onSnapshot(cb);
+    this.listeners.push(unsubscribe);
+  }
+
+  private listeners = [];
+
+  public clearListeners() {
+    this.listeners.forEach((unsub) => unsub());
+    this.listeners = [];
   }
 
   public getTodosFromSnapshot(snap: firebase.firestore.QuerySnapshot) {
@@ -39,6 +46,22 @@ class TodoAPI {
       }
       if ('done' in data) {
         todo.done = data.done;
+      }
+
+      if ('createdByEmail' in data) {
+        todo.createdByEmail = data.createdByEmail;
+      }
+
+      if ('created' in data) {
+        todo.created = data.created;
+      }
+
+      if ('lastChanged' in data) {
+        todo.lastChanged = data.lastChanged;
+      }
+
+      if ('hide' in data) {
+        todo.hide = data.hide;
       }
 
       todos.push(todo);
@@ -59,9 +82,9 @@ class TodoAPI {
 
   async update(todo: Todo) {
     try {
-      await this.collection
-        .doc(todo.id)
-        .update({ task: todo.task, done: todo.done });
+      const updatedTodo = { ...todo };
+      delete updatedTodo.id;
+      await this.collection.doc(todo.id).update(updatedTodo);
     } catch (err) {
       console.error(err);
     }

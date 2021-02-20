@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { addTodo } from '../../store/Todos';
+  import { todos } from '../../store/Todos';
   import type { Todo } from '../../types';
-  import { API } from '../../api';
+  import Auth from '../../auth';
   import Button from '../atoms/Button.svelte';
   import TodoInput from '../atoms/TodoInput.svelte';
 
@@ -10,14 +10,21 @@
 
     if (!task) throw new Error('No Task!');
 
+    const user = Auth.currentUser;
+
     const todo: Omit<Todo, 'id'> = {
       task,
+      created: new Date(),
+      createdByEmail: user.email,
+      hide: false,
+      lastChanged: new Date(),
       done: false,
     };
-    const ref = await API.add(todo);
+
+    todos.add(todo);
 
     task = '';
-    (e.target.querySelector('textarea') as HTMLInputElement).focus();
+    (e.target.querySelector('textarea') as HTMLTextAreaElement).focus();
   }
 
   let task = '';
@@ -25,7 +32,8 @@
 
 <form
   on:submit={onSubmit}
-  class="flex justify-center items-center rounded shadow bg-teal-100">
+  class="flex justify-center items-center rounded shadow bg-green-200"
+>
   <TodoInput bind:value={task} border={true} />
   <Button type="submit">Legg til</Button>
 </form>

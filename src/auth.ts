@@ -1,5 +1,5 @@
 import { app } from './firebase';
-import type { User } from 'firebase';
+import type firebase from 'firebase/app';
 
 class Auth {
   private auth: firebase.auth.Auth;
@@ -32,7 +32,7 @@ class Auth {
     return !!this.auth.currentUser;
   }
 
-  addListener(cb: (user: User) => void) {
+  addListener(cb: (user: firebase.User) => void) {
     this.auth.onAuthStateChanged(cb);
   }
 }

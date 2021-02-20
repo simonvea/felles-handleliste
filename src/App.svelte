@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { User } from 'firebase';
+  import type firebase from 'firebase/app';
   import { API } from './api';
   import Auth from './auth';
   import Button from './components/atoms/Button.svelte';
@@ -8,22 +8,12 @@
   import Login from './views/Login.svelte';
   import Todos from './views/Todos.svelte';
 
-  let unsubscribe;
-  let currentUser: User;
-
-  todos.set([
-    { id: '2', task: 'tets', done: false },
-    { id: '5', task: 'Denne er ferdig', done: true },
-  ]);
+  let currentUser: firebase.User;
 
   Auth.addListener((user) => {
     currentUser = user;
-    if (user) {
-      unsubscribe = API.addListener((snap) => {
-        todos.set(API.getTodosFromSnapshot(snap));
-      });
-    } else if (unsubscribe) {
-      unsubscribe();
+    if (!user) {
+      API.clearListeners();
     }
   });
 
@@ -31,27 +21,23 @@
     await Auth.logout();
   }
 
-  function deleteFinishedTodos() {
-    $todos.forEach((todo) => {
-      if (todo.done) {
-        API.delete(todo.id);
-      }
-    });
+  function hideFinishedTodos() {
+    todos.hideFinished();
   }
 </script>
 
-<header class="m-3">
+<header class="m-3 mb-6 flex justify-center items-center flex-col">
   {#if currentUser}
     <section>
-      <h1 class="text-xl">Simon og Linn Jeanette sin handleliste</h1>
+      <h1 class="text-xl text-center">
+        Simon og Linn Jeanette sin handleliste
+      </h1>
     </section>
-    <section class="relative h-12">
-      <SecondaryButton onClick={deleteFinishedTodos}>
+    <section class="flex justify-between items-center">
+      <SecondaryButton onClick={hideFinishedTodos}>
         Fjern fullførte
       </SecondaryButton>
-      <Button class="absolute right-0 mx-8" color="warning" onClick={logout}>
-        Logg ut
-      </Button>
+      <Button color="warning" onClick={logout}>Logg ut</Button>
     </section>
   {/if}
 </header>
